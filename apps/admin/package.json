@@ -1,0 +1,30 @@
+{
+  "name": "@cbt/admin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Panel admin server pusat CBT (React + Vite)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@cbt/question-ui": "workspace:*",
+    "@cbt/shared": "workspace:*",
+    "@tanstack/react-query": "^5.103.2",
+    "papaparse": "^5.7.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router": "^7.18.4"
+  },
+  "devDependencies": {
+    "@types/papaparse": "^5.5.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "typescript": "~5.9.3",
+    "vite": "^8.3.0"
+  }
+}
