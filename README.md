@@ -52,6 +52,7 @@ docker compose run --rm api node dist/db/seed.js --demo    # (opsional) data con
 - Aplikasi desktop diarahkan ke `http://<server>:8080` (endpoint `/api/sync/*`)
 - Migrasi database berjalan otomatis saat container `api` start.
 - Layanan: `postgres`, `redis`, `minio`, `api`, `worker` (proses antrean terpisah), `admin` (nginx: SPA + proxy `/api`).
+- Image MinIO dibangun dari source ([`deploy/minio`](deploy/minio/Dockerfile)) karena image resmi `minio/minio` sudah tidak tersedia di Docker Hub. Build pertama butuh beberapa menit.
 - Pasang HTTPS di depan port tersebut (reverse proxy / load balancer) untuk produksi.
 
 Data contoh (`--demo`) membuat lokasi `DEMO-01` (secret `demo-secret-ganti-saya`), 30 peserta

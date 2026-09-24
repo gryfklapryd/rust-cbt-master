@@ -55,9 +55,10 @@ services:
       retries: 20
 
   minio:
-    image: minio/minio:latest
+    # Image resmi minio/minio sudah tidak ada di Docker Hub, jadi dibangun dari source.
+    build: deploy/minio
+    image: cbt-minio:latest
     restart: unless-stopped
-    command: ["server", "/data", "--console-address", ":9001"]
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
@@ -67,7 +68,7 @@ services:
     ports:
       - "127.0.0.1:9001:9001"
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:9000/minio/health/live"]
       interval: 5s
       timeout: 5s
       retries: 20
