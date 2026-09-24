@@ -1,0 +1,20 @@
+{
+  "name": "rust-cbt-master",
+  "private": true,
+  "description": "Computer Based Test: server pusat (API + worker + admin panel). Client desktop (Tauri) menyusul.",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm -r run build",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "dev:server": "pnpm --filter @cbt/server dev",
+    "dev:worker": "pnpm --filter @cbt/server dev:worker",
+    "dev:admin": "pnpm --filter @cbt/admin dev",
+    "db:generate": "pnpm --filter @cbt/server db:generate",
+    "db:migrate": "pnpm --filter @cbt/server db:migrate",
+    "db:seed": "pnpm --filter @cbt/server db:seed"
+  }
+}

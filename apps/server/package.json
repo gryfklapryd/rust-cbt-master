@@ -1,0 +1,50 @@
+{
+  "name": "@cbt/server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Server pusat CBT: REST API (admin + sinkronisasi titik ujian) dan worker antrean",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --conditions=source src/index.ts",
+    "dev:worker": "tsx watch --conditions=source src/worker.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/index.js",
+    "start:worker": "node dist/worker.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx --conditions=source src/db/migrate.ts",
+    "db:seed": "tsx --conditions=source src/db/seed.ts",
+    "migrate:prod": "node dist/db/migrate.js",
+    "seed:prod": "node dist/db/seed.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1139.0",
+    "@aws-sdk/lib-storage": "^3.1139.0",
+    "@cbt/shared": "workspace:*",
+    "@fastify/cors": "^11.3.0",
+    "@fastify/jwt": "^10.2.2",
+    "@fastify/multipart": "^10.1.2",
+    "@fastify/rate-limit": "^11.2.0",
+    "@fastify/sensible": "^6.0.5",
+    "@fastify/swagger": "^9.9.0",
+    "@fastify/swagger-ui": "^6.1.1",
+    "@node-rs/argon2": "^2.2.1",
+    "bullmq": "^6.3.8",
+    "drizzle-orm": "^0.45.3",
+    "fastify": "^5.12.5",
+    "fastify-plugin": "^6.0.0",
+    "fastify-type-provider-zod": "^7.0.0",
+    "ioredis": "^6.0.0",
+    "pg": "^8.23.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "@types/pg": "^8.23.1",
+    "drizzle-kit": "^0.31.11",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3",
+    "vitest": "^5.0.1"
+  }
+}
