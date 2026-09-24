@@ -228,7 +228,7 @@ export function ExamDetailPage() {
                     {s.questions.map((q, qi) => (
                       <tr key={q.questionId}>
                         <td>{qi + 1}</td>
-                        <td className="mono">{q.info.code ?? "—"}</td>
+                        <td className="mono">{q.info.code ?? "-"}</td>
                         <td><Badge tone="info">{QUESTION_TYPE_META[q.info.type].label}</Badge></td>
                         <td>
                           <Link to={`/banks/${q.info.bankId}/questions/${q.questionId}`}>{stripHtml(q.info.content.prompt, 90)}</Link>
@@ -296,7 +296,7 @@ export function ExamDetailPage() {
             d[si]!.questions.push(...rows.map((r) => ({ questionId: r.id, pointsOverride: "", info: r })));
             return d;
           });
-          toast.success(`${rows.length} soal ditambahkan — jangan lupa simpan susunan`);
+          toast.success(`${rows.length} soal ditambahkan, jangan lupa simpan susunan`);
           setPicker(null);
         }}
       />
@@ -332,7 +332,7 @@ function QuestionPicker({ open, exclude, onClose, onPick }: { open: boolean; exc
       <Toolbar>
         <Select value={bankId} onChange={(e) => { setBankId(e.target.value); setPage(1); }}>
           <option value="">Semua bank</option>
-          {banks.data?.items.map((b) => <option key={b.id} value={b.id}>{b.code} — {b.name}</option>)}
+          {banks.data?.items.map((b) => <option key={b.id} value={b.id}>{b.code} - {b.name}</option>)}
         </Select>
         <Select value={type} onChange={(e) => { setType(e.target.value); setPage(1); }}>
           <option value="">Semua jenis</option>
@@ -357,7 +357,7 @@ function QuestionPicker({ open, exclude, onClose, onPick }: { open: boolean; exc
                         onChange={(e) => setSelected((m) => { const n = new Map(m); if (e.target.checked) n.set(r.id, r); else n.delete(r.id); return n; })}
                       />
                     </td>
-                    <td className="mono">{r.code ?? "—"}</td>
+                    <td className="mono">{r.code ?? "-"}</td>
                     <td><Badge tone="info">{QUESTION_TYPE_META[r.type].label}</Badge></td>
                     <td>{stripHtml(r.content.prompt, 100)}{used ? <span className="muted small"> (sudah dipakai)</span> : null}</td>
                     <td><StatusBadge status={r.status} /></td>

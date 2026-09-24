@@ -94,7 +94,7 @@ export function SitesPage() {
                       {s.name}
                       {s.address ? <div className="muted small">{s.address}</div> : null}
                     </td>
-                    <td>{s.capacity ?? "—"}</td>
+                    <td>{s.capacity ?? "-"}</td>
                     <td>
                       {online(s) ? <Badge tone="success">online</Badge> : null} {fmtDate(s.lastSeenAt)}
                       {s.lastSeenInfo?.appVersion ? <div className="muted small">app v{String(s.lastSeenInfo.appVersion)}</div> : null}

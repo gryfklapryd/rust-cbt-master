@@ -9,7 +9,7 @@ Sistem **Computer Based Test (CBT)** terdistribusi:
 
 Mendukung **15 jenis soal**: pilihan ganda, pilihan ganda kompleks, benar/salah, benar/salah majemuk,
 isian singkat, isian angka, uraian, menjodohkan, mengurutkan, isian rumpang (teks/angka/dropdown/bank kata),
-pengelompokan, hotspot gambar, pilih teks, matriks/Likert, dan unggah berkas — lengkap dengan penilaian
+pengelompokan, hotspot gambar, pilih teks, matriks/Likert, dan unggah berkas, lengkap dengan penilaian
 otomatis (mode semua-atau-tidak / parsial, penalti) dan koreksi manual berbasis rubrik.
 Rincian: [docs/jenis-soal.md](docs/jenis-soal.md).
 
@@ -34,7 +34,7 @@ docs/
 | Database / ORM | PostgreSQL 17 + Drizzle ORM (migrasi SQL di `apps/server/drizzle`) |
 | Validasi | Zod 4 (juga untuk skema request API & dokumentasi OpenAPI di `/docs`) |
 | Penyimpanan media | MinIO (S3-compatible) |
-| Antrean | BullMQ + Redis — bangun paket, proses hasil, penilaian |
+| Antrean | BullMQ + Redis: bangun paket, proses hasil, penilaian |
 | Admin panel | React 19 (satu monorepo pnpm, siap dipakai bersama frontend Tauri) |
 | Deploy | Docker Compose di satu server |
 
@@ -72,7 +72,7 @@ pnpm dev:admin                                    # panel admin :5173 (proxy /ap
 # atau jalankan worker terpisah: pnpm dev:worker
 ```
 
-Konfigurasi server lewat environment — lihat [`apps/server/src/config.ts`](apps/server/src/config.ts)
+Konfigurasi server lewat environment, lihat [`apps/server/src/config.ts`](apps/server/src/config.ts)
 (nilai bawaan cocok dengan `docker-compose.dev.yml`).
 
 ### Tes
@@ -98,11 +98,11 @@ pnpm db:migrate
 
 ## Alur kerja singkat
 
-1. **Titik Ujian** — daftarkan lokasi; catat kode + secret untuk konfigurasi aplikasi desktop.
-2. **Peserta** — impor CSV (`nomor, nama, kelompok, jk, tgl_lahir, kode_lokasi, password`); unduh CSV password untuk kartu peserta.
-3. **Media** & **Bank Soal** — unggah gambar/audio/video, buat soal (editor dengan validasi langsung, pratinjau tampilan peserta, dan uji kunci).
-4. **Ujian** — susun bagian dan soal, atur durasi, acak soal/opsi, mode kiosk, batas pelanggaran.
-5. **Jadwal** — buat sesi untuk satu atau banyak lokasi sekaligus, daftarkan peserta, lalu **Terbitkan paket**.
+1. **Titik Ujian**: daftarkan lokasi; catat kode + secret untuk konfigurasi aplikasi desktop.
+2. **Peserta**: impor CSV (`nomor, nama, kelompok, jk, tgl_lahir, kode_lokasi, password`); unduh CSV password untuk kartu peserta.
+3. **Media** & **Bank Soal**: unggah gambar/audio/video, buat soal (editor dengan validasi langsung, pratinjau tampilan peserta, dan uji kunci).
+4. **Ujian**: susun bagian dan soal, atur durasi, acak soal/opsi, mode kiosk, batas pelanggaran.
+5. **Jadwal**: buat sesi untuk satu atau banyak lokasi sekaligus, daftarkan peserta, lalu **Terbitkan paket**.
 6. Aplikasi desktop mengunduh paket, ujian berjalan offline, hasil dikirim kembali.
-7. **Hasil** — nilai otomatis, **Koreksi** untuk uraian/unggahan, ekspor CSV, nilai ulang bila kunci dikoreksi.
-8. **Sinkronisasi** — pantau batch hasil dari tiap lokasi.
+7. **Hasil**: nilai otomatis, **Koreksi** untuk uraian/unggahan, ekspor CSV, nilai ulang bila kunci dikoreksi.
+8. **Sinkronisasi**: pantau batch hasil dari tiap lokasi.

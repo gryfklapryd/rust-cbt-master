@@ -229,7 +229,7 @@ const routes: FastifyPluginAsyncZod = async (app) => {
 
     /**
      * Kirim hasil ujian. Payload disimpan apa adanya ke object storage lalu diproses
-     * di antrean (`results-ingest`) — respons 202 langsung dikirim.
+     * di antrean (`results-ingest`); respons 202 langsung dikirim.
      * Mengirim ulang batchId yang sama aman dan mengembalikan status batch tersebut.
      */
     siteApp.post(

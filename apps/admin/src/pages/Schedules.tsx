@@ -180,8 +180,8 @@ export function SchedulesPage() {
         <div className="grid-2">
           <Field label="Ujian">
             <Select value={form.examId} onChange={(e) => setForm({ ...form, examId: e.target.value })}>
-              <option value="">— pilih ujian —</option>
-              {exams.data?.items.map((x) => <option key={x.id} value={x.id}>{x.code} — {x.title} ({x.durationMinutes} mnt)</option>)}
+              <option value="">Pilih ujian</option>
+              {exams.data?.items.map((x) => <option key={x.id} value={x.id}>{x.code} - {x.title} ({x.durationMinutes} mnt)</option>)}
             </Select>
           </Field>
           <Field label="Nama sesi"><Input placeholder="mis. Sesi 1" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
@@ -193,7 +193,7 @@ export function SchedulesPage() {
             <Checkbox label="Daftarkan peserta sesuai lokasi asal" checked={form.assignFromSite} onChange={(e) => setForm({ ...form, assignFromSite: e.target.checked })} />
           </div>
         </div>
-        <Field label={`Titik ujian (${form.siteIds.length} dipilih) — satu jadwal dibuat per lokasi`}>
+        <Field label={`Titik ujian (${form.siteIds.length} dipilih), satu jadwal dibuat per lokasi`}>
           <div className="checklist">
             {sites.data?.items.map((s) => (
               <Checkbox
@@ -234,7 +234,7 @@ export function ScheduleDetailPage() {
 
   const publish = useAction(() => api.post(`/schedules/${scheduleId}/publish`), { success: "Paket sedang dibangun…", invalidate: inv });
   const close = useAction(() => api.post(`/schedules/${scheduleId}/close`), { success: "Jadwal ditutup", invalidate: inv });
-  const regenToken = useAction(() => api.post(`/schedules/${scheduleId}/regenerate-token`), { success: "Token baru dibuat — terbitkan ulang paket", invalidate: inv });
+  const regenToken = useAction(() => api.post(`/schedules/${scheduleId}/regenerate-token`), { success: "Token baru dibuat, terbitkan ulang paket", invalidate: inv });
   const save = useAction(
     () =>
       api.patch(`/schedules/${scheduleId}`, {
@@ -244,7 +244,7 @@ export function ScheduleDetailPage() {
         lateEntryMinutes: form.lateEntryMinutes ? Number(form.lateEntryMinutes) : null,
         accessToken: form.accessToken || null,
       }),
-    { success: "Jadwal disimpan — terbitkan ulang paket agar perubahan sampai ke lokasi", invalidate: inv, onSuccess: () => setEditing(false) },
+    { success: "Jadwal disimpan, terbitkan ulang paket agar perubahan sampai ke lokasi", invalidate: inv, onSuccess: () => setEditing(false) },
   );
   const addParticipants = useAction(
     () => api.post<{ added: number }>(`/schedules/${scheduleId}/participants`, { groupName: addForm.groupName || undefined, fromSite: addForm.fromSite || undefined }),
@@ -283,7 +283,7 @@ export function ScheduleDetailPage() {
       <div className="grid-2">
         <Card title="Informasi">
           <dl className="kv">
-            <dt>Waktu</dt><dd>{fmtDate(s.startAt)} — {fmtDate(s.endAt)}</dd>
+            <dt>Waktu</dt><dd>{fmtDate(s.startAt)} s.d. {fmtDate(s.endAt)}</dd>
             <dt>Durasi ujian</dt><dd>{s.exam.durationMinutes} menit</dd>
             <dt>Batas terlambat</dt><dd>{s.lateEntryMinutes !== null ? `${s.lateEntryMinutes} menit` : "sampai jadwal selesai"}</dd>
             <dt>Token sesi</dt>
@@ -303,7 +303,7 @@ export function ScheduleDetailPage() {
                   <tr key={p.id}>
                     <td>v{p.version}<div className="muted small">{fmtDate(p.builtAt ?? p.createdAt)}</div></td>
                     <td><StatusBadge status={p.status} />{p.error ? <pre className="error-box small">{p.error}</pre> : null}</td>
-                    <td className="small">{p.questionCount ?? "—"} soal · {p.participantCount ?? "—"} peserta · {p.assetCount ?? "—"} media<div className="muted">{fmtBytes(p.size)}</div></td>
+                    <td className="small">{p.questionCount ?? "-"} soal · {p.participantCount ?? "-"} peserta · {p.assetCount ?? "-"} media<div className="muted">{fmtBytes(p.size)}</div></td>
                     <td className="small">{p.downloads.count}×<div className="muted">{fmtDate(p.downloads.lastAt)}</div></td>
                     <td>{p.status === "ready" || p.status === "superseded" ? <Button size="sm" variant="ghost" onClick={() => download(`/schedules/${s.id}/packages/${p.id}/download`, `paket-${s.site.code}-v${p.version}.json`)}>JSON</Button> : null}</td>
                   </tr>
@@ -336,9 +336,9 @@ export function ScheduleDetailPage() {
                     <td><input type="checkbox" checked={selected.has(p.id)} onChange={(e) => setSelected((cur) => { const n = new Set(cur); if (e.target.checked) n.add(p.id); else n.delete(p.id); return n; })} /></td>
                     <td className="mono">{p.number}</td>
                     <td>{p.name}{!p.active ? <> <Badge>nonaktif</Badge></> : null}</td>
-                    <td>{p.groupName ?? "—"}</td>
+                    <td>{p.groupName ?? "-"}</td>
                     <td>{p.attempt ? <Link to={`/results/${p.attempt.id}`}><StatusBadge status={p.attempt.status} /></Link> : <span className="muted">belum ada hasil</span>}</td>
-                    <td>{p.attempt ? <>{fmtNum(p.attempt.scaledScore)} <StatusBadge status={p.attempt.gradingStatus} /></> : "—"}</td>
+                    <td>{p.attempt ? <>{fmtNum(p.attempt.scaledScore)} <StatusBadge status={p.attempt.gradingStatus} /></> : "-"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -361,7 +361,7 @@ export function ScheduleDetailPage() {
       <Modal open={adding} title="Tambah peserta ke jadwal" onClose={() => setAdding(false)} footer={<><Button onClick={() => setAdding(false)}>Batal</Button><Button variant="primary" disabled={!addForm.groupName && !addForm.fromSite} loading={addParticipants.isPending} onClick={() => addParticipants.mutate(undefined)}>Tambahkan</Button></>}>
         <Field label="Berdasarkan kelompok">
           <Select value={addForm.groupName} onChange={(e) => setAddForm({ ...addForm, groupName: e.target.value })}>
-            <option value="">—</option>
+            <option value="">-</option>
             {groups.data?.map((g) => <option key={g} value={g}>{g}</option>)}
           </Select>
         </Field>

@@ -132,7 +132,7 @@ export function GradingPage() {
       <Toolbar>
         <Select value={examId} onChange={(e) => { setExamId(e.target.value); setPage(1); }}>
           <option value="">Semua ujian</option>
-          {exams.data?.items.map((x) => <option key={x.id} value={x.id}>{x.code} — {x.title}</option>)}
+          {exams.data?.items.map((x) => <option key={x.id} value={x.id}>{x.code} - {x.title}</option>)}
         </Select>
         <Checkbox label="Tampilkan yang sudah dikoreksi" checked={includeGraded} onChange={(e) => { setIncludeGraded(e.target.checked); setPage(1); }} />
         <span className="muted">{queue.data ? `${queue.data.total} jawaban` : ""}</span>

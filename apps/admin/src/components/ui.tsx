@@ -164,7 +164,7 @@ const STATUS_LABELS: Record<string, string> = {
   terminated: "dihentikan",
 };
 export function StatusBadge({ status }: { status: string | null | undefined }) {
-  if (!status) return <span className="muted">—</span>;
+  if (!status) return <span className="muted">-</span>;
   return <Badge tone={STATUS_TONES[status] ?? "neutral"}>{STATUS_LABELS[status] ?? status}</Badge>;
 }
 

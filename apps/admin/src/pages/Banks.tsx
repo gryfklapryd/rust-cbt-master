@@ -100,7 +100,7 @@ export function BanksPage() {
                   <tr key={b.id}>
                     <td className="mono">{b.code}</td>
                     <td><Link to={`/banks/${b.id}`}>{b.name}</Link></td>
-                    <td>{b.subject ?? "—"}</td>
+                    <td>{b.subject ?? "-"}</td>
                     <td>{b.questionCount}</td>
                     <td>{fmtDate(b.updatedAt)}</td>
                     <td className="row-actions">
@@ -225,7 +225,7 @@ function QuestionsTab({ bankId }: { bankId: string }) {
             <tbody>
               {list.data.items.map((row) => (
                 <tr key={row.id}>
-                  <td className="mono">{row.code ?? "—"}</td>
+                  <td className="mono">{row.code ?? "-"}</td>
                   <td><Badge tone="info">{QUESTION_TYPE_META[row.type].label}</Badge></td>
                   <td><Link to={`/banks/${bankId}/questions/${row.id}`}>{stripHtml(row.content.prompt) || "(tanpa teks)"}</Link>
                     {row.tags.length ? <div className="muted small">{row.tags.map((t) => `#${t}`).join(" ")}</div> : null}
