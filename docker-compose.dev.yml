@@ -1,0 +1,29 @@
+# Hanya infrastruktur untuk pengembangan lokal (API & admin dijalankan dengan pnpm dev).
+#   docker compose -f docker-compose.dev.yml up -d
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: cbt
+      POSTGRES_USER: cbt
+      POSTGRES_PASSWORD: cbt
+    ports: ["5432:5432"]
+    volumes:
+      - ./deploy/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+      - pgdata-dev:/var/lib/postgresql/data
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--maxmemory-policy", "noeviction"]
+    ports: ["6379:6379"]
+  minio:
+    image: minio/minio:latest
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports: ["9000:9000", "9001:9001"]
+    volumes:
+      - miniodata-dev:/data
+volumes:
+  pgdata-dev:
+  miniodata-dev:
