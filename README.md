@@ -4,7 +4,7 @@ Sistem **Computer Based Test (CBT)** terdistribusi:
 
 - **Server pusat** (repo ini, sudah dikerjakan): menyimpan bank soal, peserta, jadwal, dan hasil;
   membangun paket ujian; menerima dan menilai hasil dari titik ujian; panel admin.
-- **Aplikasi desktop** (Rust + Tauri, menyusul): dipasang di tiap titik ujian, mengunduh paket
+- **Aplikasi desktop** (Rust + Tauri, repo [`rust-cbt-client`](https://github.com/gryfklapryd/rust-cbt-client)): dipasang di tiap titik ujian, mengunduh paket
   (peserta, soal, jadwal) sebelum ujian, menjalankan ujian **offline**, lalu mengirim hasil ke server pusat.
 
 Mendukung **15 jenis soal**: pilihan ganda, pilihan ganda kompleks, benar/salah, benar/salah majemuk,
@@ -22,6 +22,7 @@ apps/
 packages/
   shared/         Kontrak bersama: skema Zod jenis soal, mesin penilaian, format paket & hasil
   question-ui/    Komponen React untuk menampilkan/menjawab semua jenis soal (admin & Tauri)
+                  (shared & question-ui disalin ke rust-cbt-client dengan scripts/sync-shared.sh di repo itu)
 docs/
   arsitektur.md   Arsitektur, model data, antrean, keamanan
   sinkronisasi.md Protokol server ↔ aplikasi desktop (untuk pengembang client Tauri)

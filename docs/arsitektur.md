@@ -23,7 +23,7 @@
 | MinIO | S3-compatible | media soal, JSON paket, payload hasil mentah (arsip), lampiran jawaban |
 | `apps/admin` | React 19, Vite, TanStack Query | panel admin |
 | `packages/shared` | TypeScript + Zod | **kontrak tunggal**: skema 15 jenis soal, mesin penilaian, format paket & hasil |
-| `packages/question-ui` | React | tampilan & interaksi semua jenis soal, dipakai admin (pratinjau) dan nanti frontend Tauri |
+| `packages/question-ui` | React | tampilan & interaksi semua jenis soal, dipakai admin (pratinjau) dan frontend Tauri |
 
 ## Prinsip desain
 
@@ -97,9 +97,13 @@ Redis dijalankan dengan AOF dan `maxmemory-policy noeviction` agar job tidak hil
   bisa mengunduh aset yang ada di paket miliknya.
 - Koreksi manual bersifat *blind*: identitas peserta tidak ditampilkan.
 
+## Aplikasi desktop
+
+Client titik ujian ada di repo [`rust-cbt-client`](https://github.com/gryfklapryd/rust-cbt-client) (Rust + Tauri 2),
+mengikuti kontrak di [sinkronisasi.md](sinkronisasi.md). Paket `shared` dan `question-ui` disalin ke repo tersebut.
+
 ## Pengembangan berikutnya (belum dikerjakan)
 
-- Aplikasi desktop Tauri (client titik ujian); kontrak sudah siap di [sinkronisasi.md](sinkronisasi.md).
 - Enkripsi isi paket (soal) dengan kunci yang dirilis menjelang jadwal dimulai.
 - Editor soal visual per jenis (saat ini: editor JSON tervalidasi + pratinjau langsung).
 - Render rumus LaTeX (KaTeX) di `question-ui`.
