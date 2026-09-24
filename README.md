@@ -4,8 +4,10 @@ Sistem **Computer Based Test (CBT)** terdistribusi:
 
 - **Server pusat** (repo ini, sudah dikerjakan): menyimpan bank soal, peserta, jadwal, dan hasil;
   membangun paket ujian; menerima dan menilai hasil dari titik ujian; panel admin.
-- **Aplikasi desktop** (Rust + Tauri, repo [`rust-cbt-client`](https://github.com/gryfklapryd/rust-cbt-client)): dipasang di tiap titik ujian, mengunduh paket
-  (peserta, soal, jadwal) sebelum ujian, menjalankan ujian **offline**, lalu mengirim hasil ke server pusat.
+- **Aplikasi desktop** (Rust + Tauri, repo [`rust-cbt-client`](https://github.com/gryfklapryd/rust-cbt-client)) dengan dua mode:
+  - **Server lokal**: satu komputer di tiap titik ujian. Mengunduh paket (peserta, soal, jadwal) dari server pusat,
+    melayani PC peserta lewat LAN, menyediakan dasbor proktor, lalu mengirim hasil ke server pusat.
+  - **PC peserta**: terhubung ke IP server lokal dan menjalankan ujian dalam mode kiosk, tanpa internet.
 
 Mendukung **15 jenis soal**: pilihan ganda, pilihan ganda kompleks, benar/salah, benar/salah majemuk,
 isian singkat, isian angka, uraian, menjodohkan, mengurutkan, isian rumpang (teks/angka/dropdown/bank kata),
@@ -56,7 +58,8 @@ docker compose run --rm api node dist/db/seed.js --demo    # (opsional) data con
 - Image MinIO dibangun dari source ([`deploy/minio`](deploy/minio/Dockerfile)) karena image resmi `minio/minio` sudah tidak tersedia di Docker Hub. Build pertama butuh beberapa menit.
 - Pasang HTTPS di depan port tersebut (reverse proxy / load balancer) untuk produksi.
 
-Data contoh (`--demo`) membuat lokasi `DEMO-01` (secret `demo-secret-ganti-saya`), 30 peserta
+Data contoh (`--demo`) membuat lokasi `DEMO-01` (secret `demo-secret-ganti-saya`), proktor `proktor`
+(password `proktor123`) yang ditugaskan ke lokasi itu, 30 peserta
 `DEMO-0001…0030` (password `123456`), bank soal berisi satu contoh untuk tiap jenis soal, ujian, dan
 jadwal hari ini yang langsung diterbitkan (token sesi `DEMO01`).
 
@@ -100,11 +103,13 @@ pnpm db:migrate
 
 ## Alur kerja singkat
 
-1. **Titik Ujian**: daftarkan lokasi; catat kode + secret untuk konfigurasi aplikasi desktop.
+1. **Titik Ujian**: daftarkan lokasi; catat kode + secret untuk konfigurasi server lokal di lokasi itu.
+   Buat akun proktor di **Pengguna** (peran `proctor`), lalu tugaskan di **Titik Ujian → Proktor**.
 2. **Peserta**: impor CSV (`nomor, nama, kelompok, jk, tgl_lahir, kode_lokasi, password`); unduh CSV password untuk kartu peserta.
 3. **Media** & **Bank Soal**: unggah gambar/audio/video, buat soal (editor dengan validasi langsung, pratinjau tampilan peserta, dan uji kunci).
 4. **Ujian**: susun bagian dan soal, atur durasi, acak soal/opsi, mode kiosk, batas pelanggaran.
 5. **Jadwal**: buat sesi untuk satu atau banyak lokasi sekaligus, daftarkan peserta, lalu **Terbitkan paket**.
-6. Aplikasi desktop mengunduh paket, ujian berjalan offline, hasil dikirim kembali.
+6. Proktor login di server lokal, mengunduh paket, menyetujui PC peserta; ujian berjalan di LAN; hasil dikirim kembali.
+   Aksi proktor terlihat di **Titik Ujian → Log proktor**.
 7. **Hasil**: nilai otomatis, **Koreksi** untuk uraian/unggahan, ekspor CSV, nilai ulang bila kunci dikoreksi.
 8. **Sinkronisasi**: pantau batch hasil dari tiap lokasi.

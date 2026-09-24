@@ -7,12 +7,19 @@
                          │                                                                                  │
  Panel admin (browser) ──┼─► nginx (admin SPA + reverse proxy /api) ──► API Fastify ──► PostgreSQL         │
                          │                                               │   │      ──► MinIO (media,       │
- Aplikasi desktop  ──────┼─► /api/sync/* ────────────────────────────────┘   │           paket, hasil)      │
- (Tauri, titik ujian)    │                                                   ▼                              │
+ Server lokal  ─────────┼─► /api/sync/* ────────────────────────────────┘   │           paket, hasil)      │
+ (1 per titik ujian)     │                                                   ▼                              │
                          │                                         Redis ◄── BullMQ ──► Worker              │
                          │                                                         (bangun paket,          │
                          │                                                          proses hasil, nilai)    │
                          └──────────────────────────────────────────────────────────────────────────────────┘
+
+ Titik ujian (LAN, tanpa internet saat ujian):
+
+   Server lokal (aplikasi desktop mode server lokal + dasbor proktor)
+      ├── PC peserta 1 (aplikasi desktop mode PC peserta, kiosk)
+      ├── PC peserta 2
+      └── …
 ```
 
 | Komponen | Teknologi | Peran |
@@ -29,8 +36,9 @@
 
 1. **Kunci jawaban tidak pernah keluar dari server pusat.** Paket ujian hanya berisi `content`.
    Penilaian dilakukan di server setelah hasil dikirim.
-2. **Ujian berjalan offline.** Titik ujian cukup online saat mengunduh paket dan saat mengirim hasil.
-   Login peserta & token sesi diverifikasi lokal dengan hash argon2id di paket.
+2. **Ujian berjalan tanpa internet.** Hanya server lokal titik ujian yang online, dan itu pun cukup saat
+   mengunduh paket dan saat mengirim hasil. PC peserta terhubung ke server lokal lewat LAN. Login
+   peserta, token sesi, dan login proktor diverifikasi di server lokal dengan hash argon2id.
 3. **Paket adalah snapshot.** Saat jadwal diterbitkan, worker membekukan soal (konten + kunci + skor)
    menjadi satu versi paket. Mengubah soal di bank setelahnya tidak mengubah ujian yang sudah
    berjalan. Kunci versi paket disimpan di `exam_packages.answer_keys` dan dipakai penilaian.
@@ -49,6 +57,8 @@
 ```
 users                      pengguna panel admin (admin / author / grader / proctor)
 sites                      titik ujian (kode + hash secret)
+site_proctors              proktor yang ditugaskan ke titik ujian
+proctor_actions            log aksi proktor dari server lokal (reset login, tambah waktu, …)
 participants               peserta (nomor unik, hash password, kelompok, lokasi asal)
 assets                     media di MinIO (sha256)
 question_banks ─┬─ stimuli           bacaan/media bersama
@@ -84,13 +94,15 @@ Redis dijalankan dengan AOF dan `maxmemory-policy noeviction` agar job tidak hil
 | `admin` | semua, termasuk pengguna, lokasi, peserta, jadwal, penerbitan paket, hapus data |
 | `author` | bank soal, stimulus, media, ujian (susunan soal) |
 | `grader` | koreksi manual, nilai ulang per attempt |
-| `proctor` | melihat dasbor, jadwal (termasuk token sesi), hasil |
+| `proctor` | melihat dasbor, jadwal (termasuk token sesi), hasil; login di server lokal titik ujian yang ditugaskan |
 
 ## Keamanan
 
 - Password admin: argon2id (m=19 MiB). Password peserta & token sesi: argon2id ringan (m=4 MiB)
   karena dikirim massal di paket; tetap tidak bisa dibalik tanpa brute force.
-- Secret titik ujian hanya ditampilkan sekali saat dibuat / diganti.
+- Secret titik ujian hanya ditampilkan sekali saat dibuat / diganti, dan hanya disimpan di server lokal
+  (PC peserta tidak pernah memegangnya).
+- Hash password proktor dikirim hanya ke server lokal lokasi tempat proktor ditugaskan.
 - Endpoint login dibatasi laju (rate limit).
 - Konten HTML soal disanitasi (DOMPurify) saat ditampilkan; hanya skema URL aman yang diizinkan.
 - Media untuk panel admin diakses via URL bertanda tangan HMAC berumur 1 jam; titik ujian hanya
@@ -99,8 +111,16 @@ Redis dijalankan dengan AOF dan `maxmemory-policy noeviction` agar job tidak hil
 
 ## Aplikasi desktop
 
-Client titik ujian ada di repo [`rust-cbt-client`](https://github.com/gryfklapryd/rust-cbt-client) (Rust + Tauri 2),
-mengikuti kontrak di [sinkronisasi.md](sinkronisasi.md). Paket `shared` dan `question-ui` disalin ke repo tersebut.
+Aplikasi titik ujian ada di repo [`rust-cbt-client`](https://github.com/gryfklapryd/rust-cbt-client) (Rust + Tauri 2).
+Satu aplikasi dengan dua mode:
+
+- **Server lokal**: satu komputer per titik ujian. Memegang kode + secret lokasi, sinkron dengan server
+  pusat mengikuti [sinkronisasi.md](sinkronisasi.md), menyimpan attempt dan jawaban semua peserta,
+  dan menyediakan dasbor proktor (login dengan akun pusat).
+- **PC peserta**: diisi alamat IP server lokal, didaftarkan (disetujui proktor), lalu menjalankan ujian
+  dalam mode kiosk. Jawaban dikirim ke server lokal setiap berubah.
+
+Paket `shared` dan `question-ui` disalin ke repo tersebut.
 
 ## Pengembangan berikutnya (belum dikerjakan)
 

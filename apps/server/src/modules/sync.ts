@@ -1,10 +1,10 @@
 import { and, asc, desc, eq, gte, inArray, sql } from "drizzle-orm";
 import type { FastifyPluginAsyncZod, ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
-import { HeartbeatRequest, ResultsBatch, SyncAuthRequest, type ResultsBatchAck } from "@cbt/shared";
+import { HeartbeatRequest, ProctorLogBatch, ResultsBatch, SyncAuthRequest, type ProctorsResponse, type ResultsBatchAck } from "@cbt/shared";
 import { config } from "../config.js";
 import { db } from "../db/client.js";
-import { assets, attachments, examPackages, exams, packageDownloads, schedules, sites, syncBatches } from "../db/schema.js";
+import { assets, attachments, examPackages, exams, packageDownloads, proctorActions, schedules, siteProctors, sites, syncBatches, users } from "../db/schema.js";
 import { audit } from "../lib/audit.js";
 import { IdParams } from "../lib/http.js";
 import { verifyPassword } from "../lib/password.js";
@@ -74,6 +74,45 @@ const routes: FastifyPluginAsyncZod = async (app) => {
       return { serverTime: new Date().toISOString() };
     });
 
+    /**
+     * Akun proktor aktif yang ditugaskan ke lokasi ini, beserta hash password agar
+     * server lokal bisa memverifikasi login proktor tanpa internet.
+     */
+    siteApp.get("/proctors", { schema: { tags: ["sync"] } }, async (req): Promise<ProctorsResponse> => {
+      const site = currentSite(req);
+      const rows = await db
+        .select({ id: users.id, username: users.username, name: users.name, role: users.role, passwordHash: users.passwordHash })
+        .from(siteProctors)
+        .innerJoin(users, eq(users.id, siteProctors.userId))
+        .where(and(eq(siteProctors.siteId, site.sub), eq(users.active, true)))
+        .orderBy(asc(users.username));
+      return { serverTime: new Date().toISOString(), proctors: rows };
+    });
+
+    /** Log aksi proktor dari server lokal. Idempoten per id entri. */
+    siteApp.post("/proctor-log", { schema: { tags: ["sync"], body: ProctorLogBatch } }, async (req) => {
+      const site = currentSite(req);
+      const inserted = await db
+        .insert(proctorActions)
+        .values(
+          req.body.entries.map((e) => ({
+            id: e.id,
+            siteId: site.sub,
+            userId: e.proctorId,
+            username: e.username,
+            action: e.action,
+            scheduleId: e.scheduleId ?? null,
+            attemptId: e.attemptId ?? null,
+            participantId: e.participantId ?? null,
+            data: e.data ?? null,
+            at: new Date(e.at),
+          })),
+        )
+        .onConflictDoNothing()
+        .returning({ id: proctorActions.id });
+      return { received: req.body.entries.length, inserted: inserted.length };
+    });
+
     /** Jadwal terbit untuk lokasi ini (default: yang belum lewat lebih dari 7 hari). */
     siteApp.get(
       "/schedules",
@@ -93,6 +132,8 @@ const routes: FastifyPluginAsyncZod = async (app) => {
             startAt: schedules.startAt,
             endAt: schedules.endAt,
             status: schedules.status,
+            /** Token sesi (teks asli) untuk ditampilkan di dasbor proktor server lokal. */
+            accessToken: schedules.accessToken,
             exam: { id: exams.id, code: exams.code, title: exams.title, durationMinutes: exams.durationMinutes },
           })
           .from(schedules)

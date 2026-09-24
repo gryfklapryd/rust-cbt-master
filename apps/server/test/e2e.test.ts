@@ -402,6 +402,54 @@ describe("alur lengkap server pusat", () => {
     expect(second.json()).toMatchObject({ id, filename: "jawaban.pdf", size: 10 });
   });
 
+  it("proktor: penugasan ke lokasi, akun untuk server lokal, log aksi", async () => {
+    const proctor = await api("POST", "/api/users", { username: "proktor1", name: "Proktor Satu", role: "proctor", password: "proktor123" });
+    expect(proctor.status).toBe(201);
+    const author = await api("GET", "/api/users?role=author");
+    expect(author.body.items.map((u: { username: string }) => u.username)).toEqual(["penulis"]);
+
+    // Hanya proktor/admin yang boleh ditugaskan.
+    const wrong = await api("PUT", `/api/sites/${ctx.site.id}/proctors`, { userIds: [author.body.items[0].id] });
+    expect(wrong.status).toBe(400);
+    const set = await api("PUT", `/api/sites/${ctx.site.id}/proctors`, { userIds: [proctor.body.id, proctor.body.id] });
+    expect(set.status).toBe(200);
+    expect(set.body.proctors).toHaveLength(1);
+    const site = await api("GET", `/api/sites/${ctx.site.id}`);
+    expect(site.body.proctors[0]).toMatchObject({ username: "proktor1" });
+
+    const list = await api("GET", "/api/sync/proctors", undefined, ctx.siteToken);
+    expect(list.status).toBe(200);
+    expect(list.body.proctors).toHaveLength(1);
+    expect(list.body.proctors[0]).toMatchObject({ username: "proktor1", role: "proctor" });
+    expect(list.body.proctors[0].passwordHash).toMatch(/^\$argon2id\$/);
+
+    // Jadwal untuk server lokal membawa token sesi asli (ditampilkan di dasbor proktor).
+    const schedules = await api("GET", "/api/sync/schedules", undefined, ctx.siteToken);
+    expect(schedules.body.schedules[0].accessToken).toBe(ctx.schedule.accessToken);
+
+    const entry = {
+      id: randomUUID(),
+      at: new Date().toISOString(),
+      proctorId: proctor.body.id,
+      username: "proktor1",
+      action: "attempt_extra_time",
+      scheduleId: ctx.schedule.id,
+      attemptId: randomUUID(),
+      data: { minutes: 10 },
+    };
+    const log = await api("POST", "/api/sync/proctor-log", { entries: [entry] }, ctx.siteToken);
+    expect(log.body).toEqual({ received: 1, inserted: 1 });
+    const again = await api("POST", "/api/sync/proctor-log", { entries: [entry] }, ctx.siteToken);
+    expect(again.body).toEqual({ received: 1, inserted: 0 });
+    const actions = await api("GET", `/api/sites/${ctx.site.id}/proctor-actions`);
+    expect(actions.body.total).toBe(1);
+    expect(actions.body.items[0]).toMatchObject({ action: "attempt_extra_time", username: "proktor1", data: { minutes: 10 } });
+
+    // Proktor nonaktif tidak lagi dikirim ke server lokal.
+    await api("PATCH", `/api/users/${proctor.body.id}`, { active: false });
+    expect((await api("GET", "/api/sync/proctors", undefined, ctx.siteToken)).body.proctors).toHaveLength(0);
+  });
+
   it("jadwal dengan hasil tidak bisa dihapus", async () => {
     const res = await api("DELETE", `/api/schedules/${ctx.schedule.id}`);
     expect(res.status).toBe(409);

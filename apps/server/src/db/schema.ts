@@ -72,6 +72,47 @@ export const sites = pgTable("sites", {
   updatedAt: updatedAt(),
 });
 
+/**
+ * Proktor yang ditugaskan ke titik ujian. Akun (hash password) proktor ini dikirim ke
+ * server lokal lokasi tersebut agar proktor bisa login di sana tanpa internet.
+ */
+export const siteProctors = pgTable(
+  "site_proctors",
+  {
+    siteId: uuid("site_id")
+      .notNull()
+      .references(() => sites.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.siteId, t.userId] }), index("site_proctors_user_idx").on(t.userId)],
+);
+
+/** Aksi proktor di server lokal (reset login, tambah waktu, hentikan, ...), dikirim dari lokasi. */
+export const proctorActions = pgTable(
+  "proctor_actions",
+  {
+    /** UUID dibuat server lokal; kunci idempoten. */
+    id: uuid("id").primaryKey(),
+    siteId: uuid("site_id")
+      .notNull()
+      .references(() => sites.id, { onDelete: "cascade" }),
+    /** Tanpa foreign key: akun bisa sudah dihapus di pusat saat log tiba. */
+    userId: uuid("user_id"),
+    username: text("username").notNull(),
+    action: text("action").notNull(),
+    scheduleId: uuid("schedule_id"),
+    attemptId: uuid("attempt_id"),
+    participantId: uuid("participant_id"),
+    data: jsonb("data").$type<Record<string, unknown>>(),
+    at: ts("at").notNull(),
+    receivedAt: ts("received_at").notNull().defaultNow(),
+  },
+  (t) => [index("proctor_actions_site_at_idx").on(t.siteId, t.at), index("proctor_actions_attempt_idx").on(t.attemptId)],
+);
+
 // ---------------------------------------------------------------------------
 // Peserta
 // ---------------------------------------------------------------------------

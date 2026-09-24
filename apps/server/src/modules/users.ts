@@ -1,4 +1,4 @@
-import { count, desc, eq, ilike, or } from "drizzle-orm";
+import { and, count, desc, eq, ilike, or } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { db } from "../db/client.js";
@@ -38,9 +38,12 @@ const publicColumns = {
 const routes: FastifyPluginAsyncZod = async (app) => {
   app.addHook("onRequest", app.requireUser("admin"));
 
-  app.get("/", { schema: { tags: ["users"], querystring: PageQuery } }, async (req) => {
+  app.get("/", { schema: { tags: ["users"], querystring: PageQuery.extend({ role: z.enum(USER_ROLES).optional() }) } }, async (req) => {
     const q = req.query;
-    const where = q.q ? or(ilike(users.username, likePattern(q.q)), ilike(users.name, likePattern(q.q))) : undefined;
+    const where = and(
+      q.q ? or(ilike(users.username, likePattern(q.q)), ilike(users.name, likePattern(q.q))) : undefined,
+      q.role ? eq(users.role, q.role) : undefined,
+    );
     const { limit, offset } = paginate(q);
     const [items, [total]] = await Promise.all([
       db.select(publicColumns).from(users).where(where).orderBy(desc(users.createdAt)).limit(limit).offset(offset),

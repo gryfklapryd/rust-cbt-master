@@ -1,6 +1,9 @@
-# Protokol sinkronisasi: server pusat ↔ aplikasi desktop
+# Protokol sinkronisasi: server pusat ↔ server lokal titik ujian
 
-Dokumen ini adalah kontrak untuk aplikasi desktop (Rust + Tauri) di titik ujian.
+Dokumen ini adalah kontrak untuk aplikasi desktop (Rust + Tauri) **mode server lokal**. Setiap titik
+ujian punya tepat satu server lokal; hanya komputer itu yang menyimpan kode + secret lokasi dan
+berbicara dengan server pusat. PC peserta terhubung ke server lokal lewat LAN (API LAN dijelaskan di
+repo `rust-cbt-client`) dan tidak pernah memanggil API di bawah ini.
 Skema resminya ada di [`packages/shared/src/sync.ts`](../packages/shared/src/sync.ts) (Zod);
 dokumentasi OpenAPI interaktif tersedia di `/docs` pada server.
 
@@ -19,15 +22,17 @@ waktu (`2026-09-24T08:00:00+07:00` atau `…Z`), ID berupa UUID.
 ```
 
 1. **Auth lokasi**: `POST /api/sync/auth`
-2. **Daftar jadwal**: `GET /api/sync/schedules`
+2. **Daftar jadwal**: `GET /api/sync/schedules` (juga **akun proktor**: `GET /api/sync/proctors`)
 3. **Unduh paket**: `GET /api/sync/schedules/:scheduleId/package`
 4. **Unduh media**: `GET /api/sync/assets/:assetId` untuk tiap aset di `package.assets`
-5. Ujian berjalan sepenuhnya **offline** memakai paket lokal.
+5. Ujian berjalan di LAN lokasi (server lokal + PC peserta) **tanpa internet**.
 6. **Unggah berkas jawaban** (soal `file_upload`): `POST /api/sync/attachments`
 7. **Kirim hasil**: `POST /api/sync/results`
 8. **Cek status batch**: `GET /api/sync/results/:batchId`
 
-Opsional: `POST /api/sync/heartbeat` berkala saat online, supaya panel admin tahu lokasi aktif.
+Juga: `POST /api/sync/proctor-log` mengirim log aksi proktor, dan `POST /api/sync/heartbeat` berkala
+saat online supaya panel admin tahu lokasi aktif (field `status` berisi ringkasan: jumlah PC peserta
+terhubung, peserta sedang ujian, hasil belum terkirim).
 
 ## 1. Auth
 
@@ -68,6 +73,7 @@ Mengembalikan jadwal lokasi ini yang berstatus `published` / `closed` dan belum 
   "schedules": [
     {
       "id": "…", "name": "Sesi 1", "startAt": "…", "endAt": "…", "status": "published",
+      "accessToken": "K7PQ2M",
       "exam": { "id": "…", "code": "UTS-IPA", "title": "…", "durationMinutes": 90 },
       "package": { "id": "…", "version": 3, "checksum": "sha256-hex", "size": 15889, "builtAt": "…", "assetCount": 4 }
     }
@@ -77,6 +83,30 @@ Mengembalikan jadwal lokasi ini yang berstatus `published` / `closed` dan belum 
 
 `package: null` berarti paket belum pernah diterbitkan / masih dibangun. Bandingkan `checksum`
 dengan paket lokal untuk tahu perlu mengunduh ulang atau tidak.
+
+`accessToken` adalah token sesi asli (atau `null` bila jadwal tanpa token), ditampilkan di dasbor
+proktor server lokal. Paket sendiri hanya membawa hash-nya. Bila admin mengganti token, terbitkan
+ulang paket agar hash di paket ikut berubah.
+
+### Akun proktor
+
+```http
+GET /api/sync/proctors
+```
+
+```json
+{
+  "serverTime": "…",
+  "proctors": [
+    { "id": "…", "username": "proktor1", "name": "Budi", "role": "proctor", "passwordHash": "$argon2id$v=19$m=19456,t=2,p=1$…" }
+  ]
+}
+```
+
+Berisi pengguna aktif (peran `proctor` atau `admin`) yang ditugaskan admin ke lokasi ini
+(**Titik Ujian → Proktor**). Server lokal menyimpan daftar ini dan memverifikasi login proktor
+dengan hash tersebut, juga saat tidak ada internet. Daftar menggantikan daftar lama sepenuhnya:
+proktor yang dicabut atau dinonaktifkan hilang setelah sinkronisasi berikutnya.
 
 ## 3. Paket ujian
 
@@ -219,6 +249,26 @@ GET /api/sync/results/:batchId
 `status`: `received` → `processing` → `processed` | `failed`. Tandai attempt lokal sebagai
 "tersinkron" hanya bila `accepted: true`. Attempt yang ditolak perlu ditangani manual (tampilkan
 `reason` ke operator).
+
+## 9. Log aksi proktor
+
+```http
+POST /api/sync/proctor-log
+{
+  "entries": [
+    {
+      "id": "uuid-dibuat-server-lokal", "at": "…", "proctorId": "…", "username": "proktor1",
+      "action": "attempt_extra_time", "scheduleId": "…", "attemptId": "…", "participantId": "…",
+      "data": { "minutes": 10 }
+    }
+  ]
+}
+```
+
+Respons: `{ "received": 1, "inserted": 1 }`. Idempoten per `id` (kirim ulang aman). Nilai `action`:
+`login`, `logout`, `device_approve`, `device_revoke`, `attempt_reset_device`, `attempt_extra_time`,
+`attempt_terminate`, `attempt_unlock`, `attempt_delete`, `package_download`, `results_upload`,
+`results_export`, `settings_change`. Admin melihatnya di **Titik Ujian → Log proktor**.
 
 ## Kode respons
 

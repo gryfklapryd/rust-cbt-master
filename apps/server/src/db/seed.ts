@@ -25,12 +25,15 @@ import {
   questions,
   scheduleParticipants,
   schedules,
+  siteProctors,
   sites,
   stimuli,
   users,
 } from "./schema.js";
 
 const DEMO_SITE_SECRET = "demo-secret-ganti-saya";
+const DEMO_PROCTOR_USERNAME = "proktor";
+const DEMO_PROCTOR_PASSWORD = "proktor123";
 const DEMO_PARTICIPANT_PASSWORD = "123456";
 
 async function seedAdmin() {
@@ -63,9 +66,23 @@ function demoMapSvg() {
 </svg>`;
 }
 
+/** Akun proktor demo yang ditugaskan ke DEMO-01. Aman dijalankan ulang pada data demo lama. */
+async function seedDemoProctor(siteId: string) {
+  let proctor = await db.query.users.findFirst({ where: eq(users.username, DEMO_PROCTOR_USERNAME) });
+  if (!proctor) {
+    [proctor] = await db
+      .insert(users)
+      .values({ username: DEMO_PROCTOR_USERNAME, name: "Proktor Demo", role: "proctor", passwordHash: await hashPassword(DEMO_PROCTOR_PASSWORD) })
+      .returning();
+    console.log(`• Proktor demo dibuat: ${DEMO_PROCTOR_USERNAME} / ${DEMO_PROCTOR_PASSWORD}`);
+  }
+  await db.insert(siteProctors).values({ siteId, userId: proctor!.id }).onConflictDoNothing();
+}
+
 async function seedDemo(adminId: string | null) {
   const existing = await db.query.sites.findFirst({ where: eq(sites.code, "DEMO-01") });
   if (existing) {
+    await seedDemoProctor(existing.id);
     console.log("• Data demo sudah ada, dilewati");
     return;
   }
@@ -76,6 +93,8 @@ async function seedDemo(adminId: string | null) {
     .insert(sites)
     .values({ code: "DEMO-01", name: "SMA Negeri Contoh (Lab Komputer 1)", capacity: 40, secretHash: await hashPassword(DEMO_SITE_SECRET) })
     .returning();
+
+  await seedDemoProctor(site!.id);
 
   // Peserta
   const pwHash = await hashPasswordLight(DEMO_PARTICIPANT_PASSWORD);
@@ -189,6 +208,7 @@ async function seedDemo(adminId: string | null) {
   console.log("• Data demo dibuat:");
   console.log(`    Lokasi         : DEMO-01 / secret: ${DEMO_SITE_SECRET}`);
   console.log(`    Peserta        : DEMO-0001 … DEMO-0030 / password: ${DEMO_PARTICIPANT_PASSWORD}`);
+  console.log(`    Proktor        : ${DEMO_PROCTOR_USERNAME} / password: ${DEMO_PROCTOR_PASSWORD}`);
   console.log(`    Token sesi     : DEMO01`);
   console.log(`    Paket          : v${pkg.version} (dibangun oleh worker)`);
 }
