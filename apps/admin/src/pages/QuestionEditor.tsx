@@ -208,13 +208,13 @@ export function QuestionEditorPage() {
               </Field>
               <Field label="Tingkat kesulitan">
                 <Select value={meta.difficulty} onChange={(e) => setMeta({ ...meta, difficulty: e.target.value })}>
-                  <option value="">—</option><option value="easy">Mudah</option><option value="medium">Sedang</option><option value="hard">Sulit</option>
+                  <option value="">-</option><option value="easy">Mudah</option><option value="medium">Sedang</option><option value="hard">Sulit</option>
                 </Select>
               </Field>
               <Field label="Tag" hint="Pisahkan dengan koma"><Input value={meta.tags} onChange={(e) => setMeta({ ...meta, tags: e.target.value })} /></Field>
               <Field label="Stimulus / bacaan">
                 <Select value={meta.stimulusId} onChange={(e) => setMeta({ ...meta, stimulusId: e.target.value })}>
-                  <option value="">— tanpa stimulus —</option>
+                  <option value="">Tanpa stimulus</option>
                   {stimuli.data?.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
                 </Select>
               </Field>
@@ -290,7 +290,7 @@ export function QuestionEditorPage() {
                 {grade.fraction !== null ? (<><dt>Proporsi benar</dt><dd>{fmtNum(grade.fraction * 100)}%</dd></>) : null}
                 {grade.error ? (<><dt>Kesalahan</dt><dd className="text-danger">{grade.error}</dd></>) : null}
               </dl>
-            ) : <p className="muted">—</p>}
+            ) : <p className="muted">-</p>}
             <details>
               <summary className="muted small">Jawaban (JSON yang dikirim desktop)</summary>
               <pre className="code-block">{pretty(response)}</pre>
@@ -303,7 +303,7 @@ export function QuestionEditorPage() {
                 <dt>Jumlah jawaban</dt><dd>{stats.data.responses}</dd>
                 <dt>Benar penuh</dt><dd>{stats.data.fullyCorrect}</dd>
                 <dt>Tingkat kesukaran (p)</dt><dd>{fmtNum(stats.data.difficultyIndex, 3)}</dd>
-                <dt>Rata-rata waktu</dt><dd>{stats.data.avgTimeSeconds ? `${fmtNum(stats.data.avgTimeSeconds, 0)} detik` : "—"}</dd>
+                <dt>Rata-rata waktu</dt><dd>{stats.data.avgTimeSeconds ? `${fmtNum(stats.data.avgTimeSeconds, 0)} detik` : "-"}</dd>
               </dl>
             </Card>
           ) : null}

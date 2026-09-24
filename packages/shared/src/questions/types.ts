@@ -312,7 +312,7 @@ export const MatrixKey = z.object({ correct: z.record(LocalId, z.array(LocalId).
 export const MatrixResponse = z.object({ selections: z.record(LocalId, z.array(LocalId).max(20)) });
 
 // ---------------------------------------------------------------------------
-// 15. Unggah berkas (gambar kerja, rekaman audio, dokumen) — dinilai manual
+// 15. Unggah berkas (gambar kerja, rekaman audio, dokumen), dinilai manual
 // ---------------------------------------------------------------------------
 export const FileUploadContent = z.object({
   prompt: Prompt,

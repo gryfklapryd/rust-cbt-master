@@ -52,7 +52,7 @@ const routes: FastifyPluginAsyncZod = async (app) => {
     return site;
   });
 
-  /** Membuat lokasi baru. `secret` hanya ditampilkan sekali — masukkan ke konfigurasi aplikasi desktop. */
+  /** Membuat lokasi baru. `secret` hanya ditampilkan sekali, masukkan ke konfigurasi aplikasi desktop. */
   app.post("/", { onRequest: app.requireUser("admin"), schema: { tags: ["sites"], body: SiteInput } }, async (req, reply) => {
     const secret = randomSecret();
     const [site] = await db

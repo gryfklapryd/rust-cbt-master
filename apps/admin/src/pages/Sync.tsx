@@ -50,11 +50,11 @@ export function SyncPage() {
                     <tr key={b.id}>
                       <td className="nowrap">{fmtDate(b.receivedAt)}<div className="muted small mono">{b.id.slice(0, 8)}</div></td>
                       <td className="mono">{b.site.code}</td>
-                      <td>{b.deviceId ?? "—"}</td>
+                      <td>{b.deviceId ?? "-"}</td>
                       <td>{b.attemptCount}</td>
                       <td><StatusBadge status={b.status} />{b.error ? <div className="text-danger small">{b.error}</div> : null}</td>
                       <td className="small">
-                        {b.outcomes ? `${b.outcomes.length - rejected.length} diterima` : "—"}
+                        {b.outcomes ? `${b.outcomes.length - rejected.length} diterima` : "-"}
                         {rejected.map((r) => <div key={r.attemptId} className="text-danger">✕ {r.attemptId.slice(0, 8)}: {r.reason}</div>)}
                       </td>
                       <td>{can("admin") ? <ConfirmButton size="sm" confirm="Proses ulang batch ini?" onConfirm={() => reprocess.mutateAsync(b.id)}>Proses ulang</ConfirmButton> : null}</td>

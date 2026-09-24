@@ -18,14 +18,14 @@ waktu (`2026-09-24T08:00:00+07:00` atau `…Z`), ID berupa UUID.
                                                └──────────────────┘                    8. cek status
 ```
 
-1. **Auth lokasi** — `POST /api/sync/auth`
-2. **Daftar jadwal** — `GET /api/sync/schedules`
-3. **Unduh paket** — `GET /api/sync/schedules/:scheduleId/package`
-4. **Unduh media** — `GET /api/sync/assets/:assetId` untuk tiap aset di `package.assets`
+1. **Auth lokasi**: `POST /api/sync/auth`
+2. **Daftar jadwal**: `GET /api/sync/schedules`
+3. **Unduh paket**: `GET /api/sync/schedules/:scheduleId/package`
+4. **Unduh media**: `GET /api/sync/assets/:assetId` untuk tiap aset di `package.assets`
 5. Ujian berjalan sepenuhnya **offline** memakai paket lokal.
-6. **Unggah berkas jawaban** (soal `file_upload`) — `POST /api/sync/attachments`
-7. **Kirim hasil** — `POST /api/sync/results`
-8. **Cek status batch** — `GET /api/sync/results/:batchId`
+6. **Unggah berkas jawaban** (soal `file_upload`): `POST /api/sync/attachments`
+7. **Kirim hasil**: `POST /api/sync/results`
+8. **Cek status batch**: `GET /api/sync/results/:batchId`
 
 Opsional: `POST /api/sync/heartbeat` berkala saat online, supaya panel admin tahu lokasi aktif.
 
@@ -98,7 +98,7 @@ Isi paket (ringkas; lihat `ExamPackage` di `sync.ts`):
 | `site` | lokasi pemilik paket |
 | `schedule` | waktu mulai/selesai, `lateEntryMinutes`, `accessTokenHash` (argon2id token sesi, atau `null`) |
 | `exam` | judul, petunjuk, `durationMinutes`, `settings` (acak soal/opsi, navigasi, kiosk, batas pelanggaran, …), `sections[]` berisi `questionIds` berurutan, `pickCount`, `durationMinutes` per bagian |
-| `questions[]` | `{ id, type, content, points, stimulusId, version }` — **tanpa kunci jawaban** |
+| `questions[]` | `{ id, type, content, points, stimulusId, version }`, **tanpa kunci jawaban** |
 | `stimuli[]` | bacaan/media bersama, `settings.mediaPlayLimit` |
 | `participants[]` | `{ id, number, name, groupName, gender, birthDate, passwordHash, photoAssetId }` |
 | `assets[]` | `{ id, filename, mime, size, sha256 }` untuk diunduh di langkah 4 |
@@ -197,7 +197,7 @@ Aturan penting:
   (`submitted`, `timed_out`, `terminated`).
 - Satu peserta hanya boleh punya satu attempt per jadwal. Bila pengawas mengizinkan mengulang,
   admin harus menghapus attempt lama di panel (menu Hasil) sebelum attempt baru diterima.
-- Kirim event pelanggaran dengan `type: "violation"` — jumlahnya ditampilkan di laporan.
+- Kirim event pelanggaran dengan `type: "violation"`; jumlahnya ditampilkan di laporan.
   Event dideduplikasi berdasarkan `(type, at)`, jadi aman terkirim berulang.
 
 ## 8. Status batch

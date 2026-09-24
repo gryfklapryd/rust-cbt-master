@@ -1,19 +1,19 @@
 const dtf = new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short" });
 
 export function fmtDate(v: string | Date | null | undefined): string {
-  if (!v) return "—";
+  if (!v) return "-";
   const d = typeof v === "string" ? new Date(v) : v;
-  return Number.isNaN(d.getTime()) ? "—" : dtf.format(d);
+  return Number.isNaN(d.getTime()) ? "-" : dtf.format(d);
 }
 
 export function fmtNum(v: number | string | null | undefined, digits = 2): string {
-  if (v === null || v === undefined || v === "") return "—";
+  if (v === null || v === undefined || v === "") return "-";
   const n = Number(v);
-  return Number.isFinite(n) ? n.toLocaleString("id-ID", { maximumFractionDigits: digits }) : "—";
+  return Number.isFinite(n) ? n.toLocaleString("id-ID", { maximumFractionDigits: digits }) : "-";
 }
 
 export function fmtBytes(n: number | null | undefined): string {
-  if (!n && n !== 0) return "—";
+  if (!n && n !== 0) return "-";
   if (n < 1024) return `${n} B`;
   if (n < 1024 ** 2) return `${(n / 1024).toFixed(1)} KB`;
   return `${(n / 1024 ** 2).toFixed(1)} MB`;

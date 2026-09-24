@@ -172,7 +172,7 @@ export function ResultsPage() {
                     <td><StatusBadge status={a.gradingStatus} /></td>
                     <td>{fmtNum(a.score)} / {fmtNum(a.maxScore)}</td>
                     <td><strong>{fmtNum(a.scaledScore)}</strong></td>
-                    <td>{a.correctCount ?? "—"}</td>
+                    <td>{a.correctCount ?? "-"}</td>
                     <td>{a.violationCount ? <Badge tone="warning">{a.violationCount}</Badge> : 0}</td>
                   </tr>
                 ))}
@@ -236,7 +236,7 @@ export function AttemptDetailPage() {
       <div className="stats">
         <Stat label="Nilai" value={fmtNum(a.scaledScore)} hint={`${fmtNum(a.score)} / ${fmtNum(a.maxScore)} poin`} />
         <Stat label="Status" value={<StatusBadge status={a.status} />} hint={<StatusBadge status={a.gradingStatus} />} />
-        <Stat label="Dijawab / benar" value={`${a.answeredCount ?? "—"} / ${a.correctCount ?? "—"}`} />
+        <Stat label="Dijawab / benar" value={`${a.answeredCount ?? "-"} / ${a.correctCount ?? "-"}`} />
         <Stat label="Waktu" value={fmtDate(a.startedAt)} hint={`selesai ${fmtDate(a.finishedAt)}`} />
         <Stat label="Pelanggaran" value={a.violationCount} hint={a.client?.deviceId ? `perangkat ${String(a.client.deviceId)}` : undefined} />
       </div>

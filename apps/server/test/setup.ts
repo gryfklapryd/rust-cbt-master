@@ -1,5 +1,5 @@
 /**
- * Lingkungan tes integrasi. Membutuhkan PostgreSQL, Redis, dan S3 (MinIO) yang berjalan —
+ * Lingkungan tes integrasi. Membutuhkan PostgreSQL, Redis, dan S3 (MinIO) yang berjalan,
  * lihat `docker compose -f docker-compose.dev.yml up -d` di root repo.
  * Variabel bisa ditimpa lewat env: TEST_DATABASE_URL, TEST_REDIS_URL, TEST_S3_ENDPOINT.
  */

@@ -106,7 +106,7 @@ export async function recomputeAttemptTotals(tx: DbOrTx, attemptId: string): Pro
     .where(eq(attempts.id, attemptId));
 }
 
-/** Tandai ulang jawaban otomatis sebagai `pending` (mis. setelah kunci dikoreksi) — lalu worker menilai ulang. */
+/** Tandai ulang jawaban otomatis sebagai `pending` (mis. setelah kunci dikoreksi), lalu worker menilai ulang. */
 export async function resetAutoGrades(attemptIds: string[]): Promise<void> {
   if (!attemptIds.length) return;
   await db

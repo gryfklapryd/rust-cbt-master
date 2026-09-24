@@ -105,7 +105,7 @@ export const QUESTION_TYPE_META: Record<QuestionType, QuestionTypeMeta> = {
 /** UUID placeholder untuk aset contoh (ganti dengan aset yang sudah diunggah). */
 export const PLACEHOLDER_ASSET_ID = "00000000-0000-4000-8000-000000000000";
 
-/** Contoh soal untuk setiap jenis — dipakai sebagai template editor, seed, dan tes. */
+/** Contoh soal untuk setiap jenis, dipakai sebagai template editor, seed, dan tes. */
 export function questionTemplate(type: QuestionType): { definition: QuestionDefinition; scoring: ScoringInput } {
   const scoring: ScoringInput = { points: 1, mode: QUESTION_TYPE_META[type].defaultScoringMode };
   const definition = TEMPLATES[type]();

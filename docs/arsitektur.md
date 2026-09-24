@@ -23,7 +23,7 @@
 | MinIO | S3-compatible | media soal, JSON paket, payload hasil mentah (arsip), lampiran jawaban |
 | `apps/admin` | React 19, Vite, TanStack Query | panel admin |
 | `packages/shared` | TypeScript + Zod | **kontrak tunggal**: skema 15 jenis soal, mesin penilaian, format paket & hasil |
-| `packages/question-ui` | React | tampilan & interaksi semua jenis soal — dipakai admin (pratinjau) dan nanti frontend Tauri |
+| `packages/question-ui` | React | tampilan & interaksi semua jenis soal, dipakai admin (pratinjau) dan nanti frontend Tauri |
 
 ## Prinsip desain
 
@@ -99,7 +99,7 @@ Redis dijalankan dengan AOF dan `maxmemory-policy noeviction` agar job tidak hil
 
 ## Pengembangan berikutnya (belum dikerjakan)
 
-- Aplikasi desktop Tauri (client titik ujian) — kontrak sudah siap di [sinkronisasi.md](sinkronisasi.md).
+- Aplikasi desktop Tauri (client titik ujian); kontrak sudah siap di [sinkronisasi.md](sinkronisasi.md).
 - Enkripsi isi paket (soal) dengan kunci yang dirilis menjelang jadwal dimulai.
 - Editor soal visual per jenis (saat ini: editor JSON tervalidasi + pratinjau langsung).
 - Render rumus LaTeX (KaTeX) di `question-ui`.

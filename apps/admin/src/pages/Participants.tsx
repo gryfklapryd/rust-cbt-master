@@ -100,7 +100,7 @@ export function ParticipantsPage() {
   });
   const groups = useQuery({ queryKey: ["participant-groups"], queryFn: () => api.get<string[]>("/participants/groups") });
   const sites = useQuery({ queryKey: ["sites", "all"], queryFn: () => api.get<Paged<Site>>("/sites?pageSize=500") });
-  const siteName = (id: string | null) => sites.data?.items.find((s) => s.id === id)?.code ?? "—";
+  const siteName = (id: string | null) => sites.data?.items.find((s) => s.id === id)?.code ?? "-";
 
   const save = useAction(
     () => {
@@ -212,8 +212,8 @@ export function ParticipantsPage() {
                   <tr key={p.id}>
                     <td className="mono">{p.number}</td>
                     <td>{p.name}</td>
-                    <td>{p.groupName ?? "—"}</td>
-                    <td>{p.gender ?? "—"}</td>
+                    <td>{p.groupName ?? "-"}</td>
+                    <td>{p.gender ?? "-"}</td>
                     <td className="mono">{siteName(p.siteId)}</td>
                     <td>{p.active ? <Badge tone="success">aktif</Badge> : <Badge>nonaktif</Badge>}</td>
                     <td className="row-actions">
@@ -245,14 +245,14 @@ export function ParticipantsPage() {
           <Field label="Kelompok / kelas"><Input list="groups" value={form.groupName} onChange={(e) => setForm({ ...form, groupName: e.target.value })} /></Field>
           <Field label="Jenis kelamin">
             <Select value={form.gender} onChange={(e) => setForm({ ...form, gender: e.target.value })}>
-              <option value="">—</option><option value="L">Laki-laki</option><option value="P">Perempuan</option>
+              <option value="">-</option><option value="L">Laki-laki</option><option value="P">Perempuan</option>
             </Select>
           </Field>
           <Field label="Tanggal lahir"><Input type="date" value={form.birthDate} onChange={(e) => setForm({ ...form, birthDate: e.target.value })} /></Field>
           <Field label="Lokasi asal">
             <Select value={form.siteId} onChange={(e) => setForm({ ...form, siteId: e.target.value })}>
-              <option value="">—</option>
-              {sites.data?.items.map((s) => <option key={s.id} value={s.id}>{s.code} — {s.name}</option>)}
+              <option value="">-</option>
+              {sites.data?.items.map((s) => <option key={s.id} value={s.id}>{s.code} - {s.name}</option>)}
             </Select>
           </Field>
           <Field label="Password" hint={editing === "new" ? "Kosongkan untuk dibuat otomatis" : "Kosongkan bila tidak diubah"}>

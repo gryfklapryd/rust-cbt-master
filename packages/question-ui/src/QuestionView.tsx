@@ -334,7 +334,7 @@ function Matching({ content, value, onChange, readOnly, resolveAsset, order }: P
               </td>
               <td className="cbtq-select-cell">
                 <select className="cbtq-select" disabled={readOnly} value={current(l.id)} onChange={(e) => set(l.id, e.target.value)}>
-                  <option value="">— pilih —</option>
+                  <option value="">Pilih...</option>
                   {right.map((r, i) => (
                     <option key={r.id} value={r.id} disabled={!content.allowReuse && used.has(r.id) && current(l.id) !== r.id}>
                       {LETTERS[i]}
@@ -486,7 +486,7 @@ function Categorization({ content, value, onChange, readOnly, resolveAsset, orde
                   aria-label="Pindahkan ke kategori"
                   onChange={(e) => onChange({ mapping: { ...mapping, [item.id]: e.target.value || null } })}
                 >
-                  <option value="">—</option>
+                  <option value="">-</option>
                   {content.categories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {stripHtml(c.content)}

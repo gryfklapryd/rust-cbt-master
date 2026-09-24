@@ -10,7 +10,7 @@ Setiap soal terdiri dari:
 | `content` | teks soal (HTML) + struktur opsi/item | **ya** (di dalam paket) |
 | `answerKey` | kunci jawaban / rubrik | **tidak pernah** (tetap di server pusat) |
 | `scoring` | `points`, `mode` (`all_or_nothing` / `partial`), `penalty`, `allowNegative` | hanya `points` |
-| response | jawaban peserta yang dikirim balik oleh aplikasi desktop | — |
+| response | jawaban peserta yang dikirim balik oleh aplikasi desktop | - |
 
 Aturan umum penilaian:
 
@@ -41,7 +41,7 @@ Aturan umum penilaian:
 
 ## single_choice
 
-**Pilihan ganda** — Satu jawaban benar dari beberapa opsi. Mendukung bobot per opsi.
+**Pilihan ganda**: Satu jawaban benar dari beberapa opsi. Mendukung bobot per opsi.
 
 Penilaian: Benar bila `optionId` = `correctOptionId`. Dengan `optionWeights`, skor = bobot opsi terpilih × poin.
 
@@ -92,7 +92,7 @@ Contoh jawaban (response):
 
 ## multiple_choice
 
-**Pilihan ganda kompleks** — Lebih dari satu jawaban benar.
+**Pilihan ganda kompleks**: Lebih dari satu jawaban benar.
 
 Penilaian: Parsial: (opsi benar dipilih − opsi salah dipilih) / jumlah kunci, minimal 0.
 
@@ -149,7 +149,7 @@ Contoh jawaban (response):
 
 ## true_false
 
-**Benar / Salah** — Satu pernyataan, jawab benar atau salah.
+**Benar / Salah**: Satu pernyataan, jawab benar atau salah.
 
 Penilaian: Benar bila sama dengan kunci.
 
@@ -181,7 +181,7 @@ Contoh jawaban (response):
 
 ## multiple_true_false
 
-**Benar / Salah majemuk** — Tabel beberapa pernyataan, masing-masing dijawab benar/salah (gaya AKM).
+**Benar / Salah majemuk**: Tabel beberapa pernyataan, masing-masing dijawab benar/salah (gaya AKM).
 
 Penilaian: Parsial: jumlah pernyataan benar / jumlah pernyataan.
 
@@ -236,7 +236,7 @@ Contoh jawaban (response):
 
 ## short_answer
 
-**Isian singkat** — Jawaban teks pendek, dicocokkan dengan daftar jawaban yang diterima.
+**Isian singkat**: Jawaban teks pendek, dicocokkan dengan daftar jawaban yang diterima.
 
 Penilaian: Dicocokkan dengan aturan `accepted` (exact / contains / regex; opsi abaikan huruf besar-kecil, spasi, tanda baca, aksen). Skor = bobot aturan terbaik yang cocok.
 
@@ -297,7 +297,7 @@ Contoh jawaban (response):
 
 ## numeric
 
-**Isian angka** — Jawaban berupa angka dengan toleransi atau rentang.
+**Isian angka**: Jawaban berupa angka dengan toleransi atau rentang.
 
 Penilaian: Mendukung koma desimal & pemisah ribuan (`1.234,5`). Cocok bila dalam toleransi (absolut / persen) atau rentang `min`–`max`.
 
@@ -337,7 +337,7 @@ Contoh jawaban (response):
 
 ## essay
 
-**Uraian** — Jawaban panjang, dinilai manual oleh korektor (opsional dengan rubrik).
+**Uraian**: Jawaban panjang, dinilai manual oleh korektor (opsional dengan rubrik).
 
 Penilaian: Selalu `pending_manual` → dikoreksi di menu Koreksi (skor langsung atau per kriteria rubrik; total rubrik diskalakan ke poin soal). Jawaban kosong otomatis 0.
 
@@ -389,7 +389,7 @@ Contoh jawaban (response):
 
 ## matching
 
-**Menjodohkan** — Pasangkan item kiri dengan item kanan.
+**Menjodohkan**: Pasangkan item kiri dengan item kanan.
 
 Penilaian: Parsial: (pasangan benar − item kiri pengecoh yang dipasangkan) / jumlah pasangan kunci. Hanya pasangan pertama tiap item kiri yang dihitung.
 
@@ -481,7 +481,7 @@ Contoh jawaban (response):
 
 ## ordering
 
-**Mengurutkan** — Susun item ke urutan yang benar.
+**Mengurutkan**: Susun item ke urutan yang benar.
 
 Penilaian: Semua-atau-tidak: urutan harus persis. Parsial: jumlah item di posisi benar / jumlah item.
 
@@ -535,7 +535,7 @@ Contoh jawaban (response):
 
 ## fill_blanks
 
-**Isian rumpang** — Teks dengan beberapa rumpang: isian teks, angka, dropdown, atau seret kata.
+**Isian rumpang**: Teks dengan beberapa rumpang: isian teks, angka, dropdown, atau seret kata.
 
 Penilaian: Tiap blank dinilai sesuai jenisnya (teks = aturan teks, angka = aturan angka, dropdown / bank kata = id opsi). Parsial: rata-rata skor blank.
 
@@ -629,7 +629,7 @@ Contoh jawaban (response):
 
 ## categorization
 
-**Pengelompokan** — Seret item ke kategori yang tepat.
+**Pengelompokan**: Seret item ke kategori yang tepat.
 
 Penilaian: Parsial: (item tepat kategori − pengecoh yang ikut ditempatkan) / jumlah item berkunci.
 
@@ -700,7 +700,7 @@ Contoh jawaban (response):
 
 ## hotspot
 
-**Hotspot gambar** — Klik area yang benar pada gambar.
+**Hotspot gambar**: Klik area yang benar pada gambar.
 
 Penilaian: Koordinat dinormalisasi 0..1 terhadap gambar. Parsial: (region berbeda yang kena − klik meleset) / jumlah region.
 
@@ -753,7 +753,7 @@ Contoh jawaban (response):
 
 ## hot_text
 
-**Pilih teks** — Pilih kata/kalimat yang benar di dalam bacaan.
+**Pilih teks**: Pilih kata/kalimat yang benar di dalam bacaan.
 
 Penilaian: Seperti pilihan ganda kompleks, untuk segmen teks.
 
@@ -818,7 +818,7 @@ Contoh jawaban (response):
 
 ## matrix
 
-**Matriks / Likert** — Grid baris x kolom. Tanpa kunci = angket (tidak dinilai).
+**Matriks / Likert**: Grid baris x kolom. Tanpa kunci = angket (tidak dinilai).
 
 Penilaian: Parsial: jumlah baris yang tepat / jumlah baris. Tanpa `correct` = angket (status `ungraded`, skor maks 0).
 
@@ -899,7 +899,7 @@ Contoh jawaban (response):
 
 ## file_upload
 
-**Unggah berkas** — Peserta mengunggah berkas (foto, dokumen, rekaman), dinilai manual.
+**Unggah berkas**: Peserta mengunggah berkas (foto, dokumen, rekaman), dinilai manual.
 
 Penilaian: Berkas diunggah lebih dulu lewat `POST /api/sync/attachments`, lalu id-nya dirujuk di jawaban. Dinilai manual.
 

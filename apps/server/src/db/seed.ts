@@ -150,7 +150,7 @@ async function seedDemo(adminId: string | null) {
     .insert(exams)
     .values({
       code: "DEMO-UJI",
-      title: "Ujian Demo — Semua Jenis Soal",
+      title: "Ujian Demo: Semua Jenis Soal",
       instructions: "<p>Bacalah setiap soal dengan teliti. Gunakan tombol <b>Ragu-ragu</b> bila belum yakin.</p>",
       durationMinutes: 90,
       settings: ExamSettings.parse({ shuffleQuestions: false }),
@@ -158,10 +158,10 @@ async function seedDemo(adminId: string | null) {
       createdBy: adminId,
     })
     .returning();
-  const [s1] = await db.insert(examSections).values({ examId: exam!.id, title: "Bagian A — Pilihan & isian", order: 0 }).returning();
+  const [s1] = await db.insert(examSections).values({ examId: exam!.id, title: "Bagian A: Pilihan & isian", order: 0 }).returning();
   const [s2] = await db
     .insert(examSections)
-    .values({ examId: exam!.id, title: "Bagian B — Interaktif & uraian", order: 1 })
+    .values({ examId: exam!.id, title: "Bagian B: Interaktif & uraian", order: 1 })
     .returning();
   await db.insert(examSectionQuestions).values(
     qIds.map((questionId, i) => ({ sectionId: i < 7 ? s1!.id : s2!.id, questionId, order: i })),

@@ -17,10 +17,10 @@ interface User {
 }
 
 const ROLES: { id: Role; label: string }[] = [
-  { id: "admin", label: "Administrator — semua akses" },
-  { id: "author", label: "Penulis soal — bank soal, media, ujian" },
-  { id: "grader", label: "Korektor — koreksi jawaban uraian" },
-  { id: "proctor", label: "Pengawas — lihat jadwal & hasil" },
+  { id: "admin", label: "Administrator: semua akses" },
+  { id: "author", label: "Penulis soal: bank soal, media, ujian" },
+  { id: "grader", label: "Korektor: koreksi jawaban uraian" },
+  { id: "proctor", label: "Pengawas: lihat jadwal & hasil" },
 ];
 
 export function UsersPage() {
@@ -58,7 +58,7 @@ export function UsersPage() {
                 <tr key={u.id}>
                   <td className="mono">{u.username}</td>
                   <td>{u.name}{u.email ? <div className="muted small">{u.email}</div> : null}</td>
-                  <td>{ROLES.find((r) => r.id === u.role)?.label.split(" — ")[0]}</td>
+                  <td>{ROLES.find((r) => r.id === u.role)?.label.split(": ")[0]}</td>
                   <td>{fmtDate(u.lastLoginAt)}</td>
                   <td>{u.active ? <Badge tone="success">aktif</Badge> : <Badge>nonaktif</Badge>}</td>
                   <td className="row-actions">
