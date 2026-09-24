@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+env:
+  MINIO_VERSION: v0.0.0-20260212201848-7aac2a2c5b7c
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -17,18 +20,33 @@ jobs:
           POSTGRES_DB: cbt_test
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U cbt" --health-interval 5s --health-timeout 5s --health-retries 20
+          --health-cmd "pg_isready -U cbt -d cbt_test" --health-interval 5s --health-timeout 5s --health-retries 20
       redis:
         image: redis:7-alpine
         ports: ["6379:6379"]
     steps:
       - uses: actions/checkout@v4
+      # Image resmi minio/minio sudah tidak tersedia; MinIO dibangun dari source (versi sama dengan deploy/minio).
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          cache: false
+      - name: Cache binary MinIO
+        id: minio-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/minio-bin
+          key: minio-${{ env.MINIO_VERSION }}
+      - name: Build MinIO
+        if: steps.minio-cache.outputs.cache-hit != 'true'
+        run: GOBIN=$HOME/minio-bin CGO_ENABLED=0 go install github.com/minio/minio@${MINIO_VERSION}
       - name: Jalankan MinIO
         run: |
-          docker run -d --name minio -p 9000:9000 \
-            -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin \
-            minio/minio:latest server /data
-          for i in $(seq 1 30); do curl -sf http://localhost:9000/minio/health/live && break; sleep 1; done
+          mkdir -p /tmp/minio-data
+          MINIO_ROOT_USER=minioadmin MINIO_ROOT_PASSWORD=minioadmin \
+            nohup $HOME/minio-bin/minio server /tmp/minio-data --address :9000 > /tmp/minio.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://localhost:9000/minio/health/live && exit 0; sleep 1; done
+          cat /tmp/minio.log; exit 1
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -53,3 +71,5 @@ jobs:
         run: docker build --target server -t cbt-server .
       - name: Build image admin
         run: docker build --target admin -t cbt-admin .
+      - name: Build image MinIO
+        run: docker build --build-arg MINIO_VERSION=${MINIO_VERSION} -t cbt-minio deploy/minio
